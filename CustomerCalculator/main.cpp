@@ -4,6 +4,7 @@
 */
 
 #include"children_opt.h"
+#include"functions.h"
 #include"ids.h"
 
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wp, LPARAM lp);
@@ -13,6 +14,8 @@ void MessageLoop();
 HINSTANCE hGlobalHinstance;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreInstance, LPSTR lpCmd, int nShowCmd) {
+	char *p = (char *)"1 + ( (2+122 * 5 * 10.5 / 10) + 1 -(3 + ( 5 + 1 ) - 1/4) )";
+	double result = calc(p, 0, strlen(p) - 1);
 	//保存程序实例句柄
 	hGlobalHinstance = hInstance;
 	//初始化一个窗口的基础信息

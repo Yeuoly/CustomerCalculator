@@ -1,9 +1,7 @@
 #include "children_opt.h"
 
 HWND CreateButton(UINT32 x, UINT32 y, UINT32 width, UINT32 height, LPSTR text, HWND parent, HINSTANCE parentHinstance, UINT btnId) {
-	HWND hwndPushButton;
-
-	hwndPushButton = CreateWindow(
+	HWND hwndPushButton = CreateWindow(
 		TEXT("button"),
 		TEXT(text),
 		//WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON,                            
