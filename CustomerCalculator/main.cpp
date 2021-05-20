@@ -14,7 +14,7 @@ void MessageLoop();
 HINSTANCE hGlobalHinstance;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreInstance, LPSTR lpCmd, int nShowCmd) {
-	char *p = (char *)"1 + ( (2+122 * 5 * 10.5 / 10) + 1 -(3 + ( 5 + 1 ) - 1/4) )";
+	char *p = (char *)"sin(3!) + ( 2 ^ cos(2+122 * 5 * 10.125452 / 10) + 2 ^ 5 -(3 + ( 5 * 19 + 1 ) - 1/4) )";
 	double result = calc(p, 0, strlen(p) - 1);
 	//±£´æ³ÌÐòÊµÀý¾ä±ú
 	hGlobalHinstance = hInstance;
