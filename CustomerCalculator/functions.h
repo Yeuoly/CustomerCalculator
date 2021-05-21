@@ -14,7 +14,7 @@
 #define E  2.7182818284
 
 struct OptItem {
-	char opt = 0x8f;
+	char opt;
 	double num;
 };
 

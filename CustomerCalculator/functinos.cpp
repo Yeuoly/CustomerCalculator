@@ -181,9 +181,10 @@ double calc(char *str, int head, int tail) {
 				//计算函数结果
 				double num = calc(str, src_start, lp - 1);
 				opts[optlp].num = runFunc(funcname, num);
+				lp++;
 			}
 			optlp++;
-			lp++;
+			
 		}
 		else {
 			lp++;
@@ -204,7 +205,7 @@ double calc(char *str, int head, int tail) {
 		}
 	}
 	//然后计算结果，先处理乘除模部分
-	for (rlp = 0; rlp <= optlp; rlp++) {
+	for (rlp = 1; rlp <= optlp; rlp++) {
 		switch (opts[rlp].opt)
 		{
 		case OPT_MUL:
