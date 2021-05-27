@@ -1,11 +1,11 @@
 #include"functions.h"
+#include"ids.h"
 #include<math.h>
 #include<string>
-#include<vector>
 
 using namespace std;
 
-double runFunc(char *funcname, double value) {
+double runFunc(char *funcname, double value, int *err) {
 	if (strcmp(funcname, "sin") == 0) {
 		return sin(value);
 	}
@@ -42,7 +42,8 @@ double runFunc(char *funcname, double value) {
 	else if (strcmp(funcname, "cot") == 0) {
 		return (double)1 / tan(value);
 	}
-	return value;
+	*err = ERR_FUNC_UNDEF;
+	return 0;
 }
 
 double parseNumber(char *src_start, char *src_end) {
@@ -79,7 +80,10 @@ int parseInt(char *src_start, char *src_end) {
 	return result;
 }
 
-double calc(char *str, int head, int tail) {
+double calc(char *str, int head, int tail, int *err) {
+	if (tail == -1) {
+		return 0;
+	}
 	OptItem opts[20];
 	int lp = head, optlp = 0;
 	opts[0].opt = OPT_ADD;
@@ -98,7 +102,8 @@ double calc(char *str, int head, int tail) {
 					}
 				}
 			}
-			opts[optlp].num = calc(str, src_start + 1, lp - 1);
+			opts[optlp].num = calc(str, src_start + 1, lp - 1, err);
+			opts[optlp].filled = true;
 			optlp++;
 		}
 		else if (str[lp] == '+') {
@@ -113,6 +118,7 @@ double calc(char *str, int head, int tail) {
 			}
 			lp--;
 			opts[optlp].num = parseNumber(str + src_start, str + lp);
+			opts[optlp].filled = true;
 			optlp++;
 			lp++;
 		}
@@ -150,19 +156,23 @@ double calc(char *str, int head, int tail) {
 			while ((str[lp] >= 'a' && str[lp] <= 'z') || (str[lp] >= 'A' && str[lp] <= 'Z') || (str[lp] >= '0' && str[lp] <= '9')) {
 				lp++;
 			}
-			char funcname[256] = { 0 };
+			char funcname[16] = { 0 };
 			//越界检测
-			if (lp - src_start <= 255) {
+			if (lp - src_start <= 15) {
 				strncpy_s(funcname, str + src_start, lp - src_start);
 			}
 			else {
-				strncpy_s(funcname, str + src_start, 255);
+				//函数名越界
+				*err = ERR_FUNC_OVFLW;
+				strncpy_s(funcname, str + src_start, 15);
 			}
 			if (strcmp(funcname, "PI") == 0) {
 				opts[optlp].num = PI;
+				opts[optlp].filled = true;
 			}
 			else if (strcmp(funcname, "e") == 0) {
 				opts[optlp].num = E;
+				opts[optlp].filled = true;
 			}
 			else {
 				src_start = ++lp;
@@ -178,13 +188,25 @@ double calc(char *str, int head, int tail) {
 					}
 					lp++;
 				}
+				if (lp > tail) {
+					*err = ERR_QOUT_OVFLW;
+					return 0;
+				}
 				//计算函数结果
-				double num = calc(str, src_start, lp - 1);
-				opts[optlp].num = runFunc(funcname, num);
+				double num = calc(str, src_start, lp - 1, err);
+				//如果函数内无值
+				if (src_start >= lp) {
+					*err = ERR_FUNC_EMPTY;
+					opts[optlp].num = 0;
+					opts[optlp].filled = true;
+				}
+				else {
+					opts[optlp].num = runFunc(funcname, num, err);
+					opts[optlp].filled = true;
+				}
 				lp++;
 			}
 			optlp++;
-			
 		}
 		else {
 			lp++;
@@ -193,6 +215,10 @@ double calc(char *str, int head, int tail) {
 	int rlp;
 	//然后计算结果，先处理乘方部分
 	for (rlp = 0; rlp <= optlp; rlp++) {
+		if (!opts[rlp].filled && opts[rlp].opt <= 126) {
+			*err = ERR_NUM_BLANK;
+			return 0;
+		}
 		switch (opts[rlp].opt)
 		{
 		case OPT_POW:

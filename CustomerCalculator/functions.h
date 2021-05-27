@@ -14,12 +14,13 @@
 #define E  2.7182818284
 
 struct OptItem {
-	char opt;
+	char opt = 127;
 	double num;
+	bool filled = 0;
 };
 
 int parseInt(char *src_start, char *src_end);
 
 double parseNumber(char *src_start, char *src_end);
 
-double calc(char *str, int head, int tail);
+double calc(char *str, int head, int tail, int *err);

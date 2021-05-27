@@ -5,7 +5,7 @@ HWND CreateButton(UINT32 x, UINT32 y, UINT32 width, UINT32 height, LPSTR text, H
 		TEXT("button"),
 		TEXT(text),
 		//WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON,                            
-		WS_CHILD | WS_VISIBLE,
+		WS_CHILD | WS_VISIBLE | WS_SYSMENU,
 		x, y,
 		width, height,
 		parent,
