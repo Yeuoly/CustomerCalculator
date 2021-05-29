@@ -76,7 +76,6 @@ void CreateBtnGroup(HWND hWnd, HFONT hFont, HFONT hFuncFont) {
 
 void HandleUserEvent(UINT uMsg, WPARAM wp, LPARAM lp);
 
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreInstance, LPSTR lpCmd, int nShowCmd) {
 	//保存程序实例句柄
 	hGlobalHinstance = hInstance;
@@ -169,6 +168,15 @@ void CalcAnswer() {
 			break;
 		case ERR_NUM_BLANK:
 			errstr = (LPSTR)"计算符号后不应为空";
+			break;
+		case ERR_NUM_BUSY:
+			errstr = (LPSTR)"缺少运算符";
+			break;
+		case ERR_OPT_BUSY:
+			errstr = (LPSTR)"运算符前后应有参与计算的值";
+			break;
+		case ERR_EXPR_EXTRA:
+			errstr = (LPSTR)"计算式中包含非法字符";
 			break;
 		default:
 			errstr = (LPSTR)"未知错误";

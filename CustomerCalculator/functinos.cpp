@@ -3,6 +3,8 @@
 #include<math.h>
 #include<string>
 
+#define OPT_BUSY_EXPR if(opts[optlp].opt != DEFAULT_OPT_NUM){ *err = ERR_OPT_BUSY; return 0; }
+
 using namespace std;
 
 double runFunc(char *funcname, double value, int *err) {
@@ -107,6 +109,7 @@ double calc(char *str, int head, int tail, int *err) {
 			optlp++;
 		}
 		else if (str[lp] == '+') {
+			OPT_BUSY_EXPR
 			opts[optlp].opt = OPT_ADD;
 			lp++;
 		}
@@ -123,22 +126,27 @@ double calc(char *str, int head, int tail, int *err) {
 			lp++;
 		}
 		else if (str[lp] == '-') {
+			OPT_BUSY_EXPR
 			opts[optlp].opt = OPT_SUB;
 			lp++;
 		}
 		else if (str[lp] == '*') {
+			OPT_BUSY_EXPR
 			opts[optlp].opt = OPT_MUL;
 			lp++;
 		}
 		else if (str[lp] == '/') {
+			OPT_BUSY_EXPR
 			opts[optlp].opt = OPT_DIV;
 			lp++;
 		}
 		else if (str[lp] == '%') {
+			OPT_BUSY_EXPR
 			opts[optlp].opt = OPT_MOD;
 			lp++;
 		}
 		else if (str[lp] == '^') {
+			OPT_BUSY_EXPR
 			opts[optlp].opt = OPT_POW;
 			lp++;
 		}
@@ -208,14 +216,24 @@ double calc(char *str, int head, int tail, int *err) {
 			}
 			optlp++;
 		}
-		else {
+		else if(str[lp] == ' ' || str[lp] == ')') {
 			lp++;
+		}
+		else {
+			*err = ERR_EXPR_EXTRA;
+			return 0;
 		}
 	}
 	int rlp;
 	//然后计算结果，先处理乘方部分
 	for (rlp = 0; rlp <= optlp; rlp++) {
+		if (opts[rlp].opt == DEFAULT_OPT_NUM && opts[rlp].filled) {
+			//无计算符号
+			*err = ERR_NUM_BUSY;
+			return 0;
+		}
 		if (!opts[rlp].filled && opts[rlp].opt <= 126) {
+			//计算符号后面为空，即有计算符号，但是无数据
 			*err = ERR_NUM_BLANK;
 			return 0;
 		}
@@ -248,6 +266,7 @@ double calc(char *str, int head, int tail, int *err) {
 			opts[rlp].num = fmod(opts[rlp - 1].num, opts[rlp].num);
 			opts[rlp - 1].num = 0;
 			opts[rlp].opt = opts[rlp - 1].opt;
+			break;
 		default:
 			break;
 		}

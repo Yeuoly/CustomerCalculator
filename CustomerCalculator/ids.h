@@ -42,10 +42,4 @@
 #define CC_EDT_MAIN 0x101
 #define CC_EDT_ANS  0x102
 
-#define ERR_FUNC_UNDEF 0x001
-#define ERR_QOUT_OVFLW 0x002
-#define ERR_FUNC_EMPTY 0x003
-#define ERR_FUNC_OVFLW 0x004
-#define ERR_NUM_BLANK 0x005
-
 #define TIMER_INTERVAL 500
