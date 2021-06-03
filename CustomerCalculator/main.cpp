@@ -7,6 +7,7 @@
 #include"children_opt.h"
 #include"functions.h"
 #include"ids.h"
+#include"error.h"
 #include<string>
 
 struct WindowItemInfo {
@@ -83,7 +84,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreInstance, LPSTR lpCmd, int
 	WNDCLASS wndcls;
 	wndcls.cbClsExtra = NULL;
 	wndcls.cbWndExtra = NULL;
-	wndcls.hbrBackground = (HBRUSH)GetStockObject(RGB(1,1,1));
+	wndcls.hbrBackground = (HBRUSH)GetStockObject(RGB(255, 255, 255));
 	wndcls.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndcls.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wndcls.hInstance = hInstance;
@@ -147,39 +148,48 @@ void ClearAllEdit() {
 
 void CalcAnswer() {
 	char exp[2048];
-	int err = 0;
+	CalcError err = { 0 };
 	GetWindowText(hItems.hEdtMan.hwnd, exp, 2047);
 	double ans = calc(exp, 0, strlen(exp) - 1, &err);
 	//检测错误
-	if (err != 0) {
-		LPSTR errstr;
-		switch (err) {
+	if (err.err_code != 0) {
+		//简单计算一下错误信息，这里会覆盖exp的内容，不过exp之后也用不到了，这里的exp[16] = 0是为了处理后面的strcat_s避免报错也为了安全
+		exp[err.err_position + 15] = 0;
+		try{
+			strcat_s(err.err_msg, 16, exp + err.err_position);
+		}
+		catch (const std::exception&){
+			strcat_s(err.err_msg, 16, "FATUL");
+		}
+		err.err_position++;
+		char errstr[256] = { 0 };
+		switch (err.err_code) {
 		case ERR_FUNC_UNDEF:
-			errstr = (LPSTR)"使用了非法函数";
+			sprintf_s(errstr, 255, "使用了非法函数\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		case ERR_QOUT_OVFLW:
-			errstr = (LPSTR)"括号不匹配";
+			sprintf_s(errstr, 255, "括号不匹配\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		case ERR_FUNC_EMPTY:
-			errstr = (LPSTR)"函数空值";
+			sprintf_s(errstr, 255, "函数空值\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		case ERR_FUNC_OVFLW:
-			errstr = (LPSTR)"函数名过长，可能引起栈溢出";
+			sprintf_s(errstr, 255, "函数名过长，可能引起栈溢出\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		case ERR_NUM_BLANK:
-			errstr = (LPSTR)"计算符号后不应为空";
+			sprintf_s(errstr, 255, "计算符号后不应为空\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		case ERR_NUM_BUSY:
-			errstr = (LPSTR)"缺少运算符";
+			sprintf_s(errstr, 255, "缺少运算符\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		case ERR_OPT_BUSY:
-			errstr = (LPSTR)"运算符前后应有参与计算的值";
+			sprintf_s(errstr, 255, "运算符前后应有参与计算的值\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		case ERR_EXPR_EXTRA:
-			errstr = (LPSTR)"计算式中包含非法字符";
+			sprintf_s(errstr, 255, "计算式中包含非法字符\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		default:
-			errstr = (LPSTR)"未知错误";
+			sprintf_s(errstr, 255, "未知错误\r\n错误位置: %d\r\n错误表达式：%s", err.err_position, err.err_msg);
 			break;
 		}
 		SetWindowText(hItems.hEdtAns.hwnd, errstr);

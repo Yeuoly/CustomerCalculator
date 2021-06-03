@@ -1,5 +1,7 @@
 #pragma once
 
+#include"error.h"
+
 #define OPT_ADD 0x1
 #define OPT_SUB 0x2
 #define OPT_MUL 0x3
@@ -24,13 +26,15 @@
 #define DEFAULT_OPT_NUM 127
 
 struct OptItem {
-	char opt = DEFAULT_OPT_NUM;
 	double num;
-	bool filled = 0;
+	unsigned int pos_opt = 0;
+	unsigned int pos_num = 0;
+	char opt = DEFAULT_OPT_NUM;
+	char filled = 0;
 };
 
 int parseInt(char *src_start, char *src_end);
 
 double parseNumber(char *src_start, char *src_end);
 
-double calc(char *str, int head, int tail, int *err);
+double calc(char *str, unsigned int head, unsigned int tail, CalcError *err);
